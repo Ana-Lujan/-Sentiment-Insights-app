@@ -1,0 +1,6 @@
+gradio
+pandas
+torch
+transformers
+psycopg2-binary
+matplotlib
