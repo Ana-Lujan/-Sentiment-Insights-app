@@ -1,3 +1,14 @@
+---
+title: Sentiment Insights
+emoji: 🎯
+colorFrom: blue
+colorTo: green
+sdk: gradio
+sdk_version: 3.50.0
+app_file: gradio_app.py
+pinned: false
+---
+
 # Sentiment Insights - Análisis de Sentimientos Inteligente
 
 ¡Descubre el poder de la Inteligencia Artificial para entender las emociones detrás de las palabras!
