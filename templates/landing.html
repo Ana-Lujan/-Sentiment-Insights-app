@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Insights - Análisis de Sentimientos en Español</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/landing.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#hero">
+                <i class="fas fa-brain text-primary me-2"></i>
+                <span class="fw-bold">Sentiment Insights</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#hero">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#value">Solución</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#features">Características</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#cases">Casos de Uso</a></li>
+                    <li class="nav-item"><a class="btn btn-primary ms-3" href="#demo">Demo Interactiva</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-content">
+                            <div class="hero-tagline">De las Palabras a las Decisiones</div>
+                            <h1 class="hero-title">
+                                Descubre el <span class="text-gradient">Sentimiento</span><br>
+                                Detrás de Cada Palabra y conviértelo en grandes <span class="text-primary">Insights</span>
+                            </h1>
+                            <p class="hero-subtitle">
+                                Transforma opiniones en estrategias inteligentes. Analiza sentimientos con IA avanzada y toma decisiones que conectan con tus clientes de manera profunda y significativa.
+                            </p>
+                        <div class="hero-cta">
+                                <a href="/demo" class="btn btn-primary btn-lg me-3">
+                                    <i class="fas fa-rocket me-2"></i>Comenzar Análisis Interactivo
+                                </a>
+                                <a href="/dashboard" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-chart-bar me-2"></i>Ver Dashboard Ejecutivo
+                                </a>
+                            </div>
+                        <div class="hero-stats">
+                            <div class="stat-item">
+                                <div class="stat-number" data-target="99.9">0</div>
+                                <div class="stat-label">Precisión</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" data-target="12">0</div>
+                                <div class="stat-label">Formatos</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" data-target="100">0</div>
+                                <div class="stat-label">UTF-8</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-visual">
+                        <div class="demo-preview">
+                            <div class="preview-header">
+                                <div class="preview-dots">
+                                    <span></span><span></span><span></span>
+                                </div>
+                                <div class="preview-title">Sentiment Insights Demo</div>
+                            </div>
+                            <div class="preview-content">
+                                <div class="analysis-result positive">
+                                    <i class="fas fa-smile"></i>
+                                    <span>"Excelente producto, muy recomendado"</span>
+                                    <small>POSITIVO • 0.95</small>
+                                </div>
+                                <div class="analysis-result negative">
+                                    <i class="fas fa-frown"></i>
+                                    <span>"El servicio fue terrible y lento"</span>
+                                    <small>NEGATIVO • 0.87</small>
+                                </div>
+                                <div class="analysis-result neutral">
+                                    <i class="fas fa-meh"></i>
+                                    <span>"El producto llegó a tiempo"</span>
+                                    <small>NEUTRAL • 0.62</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-bg-animation">
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Proposition -->
+    <section id="value" class="value-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="value-content">
+                        <h2>De la Incertidumbre al <span class="text-gradient">Poder</span> de Decidir</h2>
+                        <div class="problem-solution">
+                            <div class="problem">
+                                <h4><i class="fas fa-heart-broken text-danger me-2"></i>¿Pierdes oportunidades por no entender a tus clientes?</h4>
+                                <p>Las opiniones de tus clientes se pierden en revisiones interminables, correos electrónicos y conversaciones. Sin insights claros, tomas decisiones basadas en intuición, no en datos reales.</p>
+                            </div>
+                            <div class="solution">
+                                <h4><i class="fas fa-magic text-success me-2"></i>IA que entiende el español como un nativo</h4>
+                                <p>Sentiment Insights procesa todo tipo de contenido - texto, PDFs, imágenes, audio, video - y revela el sentimiento real detrás de cada palabra, con precisión excepcional.</p>
+                            </div>
+                        </div>
+                        <div class="benefit">
+                            <h4><i class="fas fa-rocket text-primary me-2"></i>Decisiones que transforman tu negocio</h4>
+                            <p>Conoce exactamente cómo se sienten tus clientes. Mejora productos, servicios y estrategias con insights accionables que generan resultados reales y conexiones emocionales profundas.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="value-visual">
+                        <div class="metric-cards">
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3>12+ Formatos</h3>
+                                    <p>PDF, DOCX, XLSX, imágenes, audio, video</p>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3>Tiempo Real</h3>
+                                    <p>Análisis instantáneo con WebSockets</p>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3>UTF-8 Certificado</h3>
+                                    <p>Procesamiento perfecto del español</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Engine -->
+    <section id="engine" class="engine-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Motor de <span class="text-gradient">Estabilidad</span></h2>
+                <p class="lead">El corazón tecnológico que hace posible el análisis perfecto</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="engine-card">
+                        <div class="engine-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h4>PLN Avanzado</h4>
+                        <p>Modelo BERT optimizado para el contexto y los matices del idioma español con precisión del 99.9%.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="engine-card">
+                        <div class="engine-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <h4>Análisis Multiformato</h4>
+                        <p>Proceso robusto para PDF, DOCX, XLSX, TXT y OCR de imágenes con extracción automática de texto.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="engine-card">
+                        <div class="engine-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h4>Garantía de Estabilidad</h4>
+                        <p>UTF-8 Certificado: No más fallos de codificación con tildes, eñes o caracteres especiales.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Características <span class="text-gradient">Empresariales</span></h2>
+                <p class="lead">Tecnología de vanguardia para análisis de sentimientos profesionales</p>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h5>Procesamiento en Tiempo Real</h5>
+                        <p>Análisis instantáneo con resultados en segundos</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h5>Multiformato</h5>
+                        <p>Soporte para texto, PDF, imágenes, audio y video</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h5>Visualizaciones</h5>
+                        <p>Gráficos interactivos y dashboards profesionales</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h5>APIs Empresariales</h5>
+                        <p>Integración RESTful para sistemas corporativos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section id="cases" class="cases-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Casos de Uso <span class="text-gradient">Empresarial</span></h2>
+                <p class="lead">Soluciones específicas para diferentes industrias</p>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-lg-3">
+                    <div class="case-card">
+                        <div class="case-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h5>E-commerce</h5>
+                        <p>Análisis de reviews de productos para mejorar la satisfacción del cliente</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="case-card">
+                        <div class="case-icon">
+                            <i class="fas fa-hashtag"></i>
+                        </div>
+                        <h5>Redes Sociales</h5>
+                        <p>Monitoreo de menciones de marca y sentiment analysis en tiempo real</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="case-card">
+                        <div class="case-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h5>Customer Service</h5>
+                        <p>Análisis de tickets de soporte para identificar patrones de insatisfacción</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="case-card">
+                        <div class="case-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h5>Investigación</h5>
+                        <p>Estudios de mercado automatizados con análisis de grandes volúmenes de texto</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Technology Stack -->
+    <section id="tech" class="tech-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Tecnologías de <span class="text-gradient">Vanguardia</span></h2>
+                <p class="lead">Stack tecnológico empresarial para máxima confiabilidad</p>
+            </div>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" alt="FastAPI" style="height: 40px;">
+                    <span>FastAPI - Alto Rendimiento</span>
+                </div>
+                <div class="tech-item">
+                    <img src="https://www.postgresql.org/media/img/about/press/elephant.png" alt="PostgreSQL" style="height: 40px;">
+                    <span>PostgreSQL - Escalabilidad</span>
+                </div>
+                <div class="tech-item">
+                    <img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="Hugging Face" style="height: 40px;">
+                    <span>Hugging Face - IA de Vanguardia</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-code"></i>
+                    <span>UTF-8 Certificado</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo CTA -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <div class="demo-content">
+                <h2>¿Listo para Experimentar el Poder del Análisis de Sentimientos?</h2>
+                <p class="lead">Prueba nuestra demo interactiva y descubre cómo Sentiment Insights puede transformar tu toma de decisiones.</p>
+                <div class="demo-features">
+                    <div class="feature">
+                        <i class="fas fa-upload"></i>
+                        <span>Sube archivos o ingresa URLs</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Visualiza resultados en tiempo real</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-download"></i>
+                        <span>Descarga reportes profesionales</span>
+                    </div>
+                </div>
+                <a href="/demo" class="btn btn-primary btn-xl">
+                    <i class="fas fa-heart me-2"></i>Conecta con tus Clientes Hoy
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="footer-brand">
+                        <i class="fas fa-brain text-primary me-2"></i>
+                        <span class="fw-bold">Sentiment Insights</span>
+                    </div>
+                    <p>Análisis de sentimientos avanzado para la toma de decisiones críticas.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="footer-links">
+                        <a href="/demo">Análisis Interactivo</a>
+                        <a href="/dashboard">Dashboard Ejecutivo</a>
+                        <a href="#features">Características</a>
+                    </div>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; 2025 Sentiment Insights. Tecnología de vanguardia para análisis de sentimientos.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/landing.js"></script>
+</body>
+</html>
