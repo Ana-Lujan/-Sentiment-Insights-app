@@ -1,13 +1,23 @@
 import gradio as gr
-from model_analyzer import analyze_text
-from file_processor import process_file
-from data_extractor import extract_text_from_url, ExtractionError
 import pandas as pd
 import tempfile
 import os
 
+# Try to import the analysis modules
+try:
+    from model_analyzer import analyze_text
+    from file_processor import process_file
+    from data_extractor import extract_text_from_url, ExtractionError
+    MODEL_LOADED = True
+except Exception as e:
+    MODEL_LOADED = False
+    ERROR_MSG = f"Error cargando el modelo: {str(e)}"
+
 def analyze_sentiment(text):
     """Analyze sentiment of input text."""
+    if not MODEL_LOADED:
+        return ERROR_MSG, "", 0.0, 0.0
+
     if not text or not text.strip():
         return "Por favor, ingresa un texto para analizar.", "", 0.0, 0.0
 
@@ -20,6 +30,9 @@ def analyze_sentiment(text):
 
 def analyze_file(file):
     """Analyze sentiment from uploaded file."""
+    if not MODEL_LOADED:
+        return ERROR_MSG, pd.DataFrame()
+
     if file is None:
         return "Por favor, sube un archivo para analizar.", pd.DataFrame()
 
@@ -63,6 +76,9 @@ def analyze_file(file):
 
 def analyze_url(url):
     """Analyze sentiment from URL."""
+    if not MODEL_LOADED:
+        return ERROR_MSG, pd.DataFrame()
+
     if not url or not url.strip():
         return "Por favor, ingresa una URL válida.", pd.DataFrame()
 
