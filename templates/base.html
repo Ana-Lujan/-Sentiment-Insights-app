@@ -40,7 +40,7 @@
                 <div class="navbar-nav">
                     <span class="navbar-text me-3">
                         <small class="text-light">
-                            <i class="fas fa-database text-success me-1"></i>DB Conectada
+                            <i class="fas fa-database {{ 'text-success' if db_initialized else 'text-warning' }} me-1"></i>{{ 'DB Conectada' if db_initialized else 'Modo Demo' }}
                             <i class="fas fa-circle text-success ms-2 me-1"></i>Sistema Activo
                         </small>
                     </span>

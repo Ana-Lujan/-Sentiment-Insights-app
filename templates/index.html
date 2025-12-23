@@ -101,6 +101,7 @@
                                 <th>Emoción</th>
                                 <th>Intensidad</th>
                                 <th>Confianza</th>
+                                <th>Análisis Profesional</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -115,6 +116,16 @@
                                 <td>{{ result.emocion }}</td>
                                 <td>{{ "%.2f"|format(result.intensidad) }}</td>
                                 <td>{{ "%.2f"|format(result.confianza) }}</td>
+                                <td>
+                                    <div class="explanation-cell">
+                                        <small class="text-muted explanation-text">{{ result.explicacion[:100] }}{% if result.explicacion|length > 100 %}...{% endif %}</small>
+                                        {% if result.explicacion|length > 100 %}
+                                        <button class="btn btn-sm btn-outline-info ms-2" onclick="showFullExplanation('{{ result.comentario|replace("'", "\\'") }}', '{{ result.explicacion|replace("'", "\\'") }}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -135,6 +146,81 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Professional Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-content">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+        <div class="loading-text">
+            <h4>Procesando Análisis</h4>
+            <p id="loadingMessage">Extrayendo datos...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-content {
+    text-align: center;
+    color: white;
+}
+
+.loading-spinner .spinner-border {
+    width: 4rem;
+    height: 4rem;
+    border-width: 0.3em;
+}
+
+.loading-text h4 {
+    margin-top: 1rem;
+    font-weight: 600;
+}
+
+.loading-text p {
+    margin-bottom: 0;
+    opacity: 0.8;
+}
+
+.explanation-cell {
+    max-width: 300px;
+}
+
+.explanation-text {
+    display: inline;
+    line-height: 1.4;
+}
+
+.explanation-cell .btn {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.modal-body .bg-light {
+    border-left: 4px solid #007bff;
+}
+
+.explanation-content {
+    line-height: 1.6;
+    white-space: pre-line;
+}
+</style>
 
 <script>
 // File management functionality
@@ -170,21 +256,20 @@ document.getElementById('analysisForm').addEventListener('submit', async functio
     const statusAlert = document.getElementById('statusAlert');
     const statusMessage = document.getElementById('statusMessage');
     const analyzeBtn = document.getElementById('analyzeBtn');
-    const spinner = analyzeBtn.querySelector('.spinner-border');
-    const icon = analyzeBtn.querySelector('.fa-play');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingMessage = document.getElementById('loadingMessage');
 
     // Hide any existing alerts first
     statusAlert.style.display = 'none';
 
-    // Show loading state
+    // Show professional loading overlay
+    loadingOverlay.style.display = 'flex';
+    loadingMessage.textContent = 'Extrayendo datos...';
     analyzeBtn.disabled = true;
-    spinner.classList.remove('d-none');
-    icon.classList.add('d-none');
-    analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Extrayendo datos...';
 
     try {
         // Step 1: Data extraction
-        analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Extrayendo datos...';
+        loadingMessage.textContent = 'Extrayendo datos del contenido...';
 
         const response = await fetch('/analyze', {
             method: 'POST',
@@ -197,14 +282,18 @@ document.getElementById('analysisForm').addEventListener('submit', async functio
         }
 
         // Step 2: Analysis
-        analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Analizando sentimiento...';
+        loadingMessage.textContent = 'Analizando sentimientos con IA avanzada...';
 
         const result = await response.json();
 
         // Step 3: Report generation
-        analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Generando reporte...';
+        loadingMessage.textContent = 'Generando reporte profesional...';
+
+        // Simulate final processing time for better UX
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         if (response.ok) {
+            loadingOverlay.style.display = 'none';
             statusAlert.className = 'alert alert-success';
             statusAlert.style.display = 'block';
             statusMessage.textContent = result.status;
@@ -213,9 +302,10 @@ document.getElementById('analysisForm').addEventListener('submit', async functio
             window.dispatchEvent(new CustomEvent('analysisComplete'));
 
             // Success - reload to show results
-            setTimeout(() => window.location.reload(), 2000);
+            setTimeout(() => window.location.reload(), 1500);
         }
     } catch (error) {
+        loadingOverlay.style.display = 'none';
         statusAlert.className = 'alert alert-danger';
         statusAlert.style.display = 'block';
         statusMessage.textContent = error.message || 'Error en el análisis';
@@ -243,6 +333,84 @@ function clearResults() {
         console.error('Error clearing results:', error);
         // Even on error, reload to ensure clean state
         window.location.reload();
+    });
+}
+
+function showFullExplanation(comment, explanation) {
+    // Create modal for full explanation
+    const modalHtml = `
+        <div class="modal fade" id="explanationModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-brain text-primary me-2"></i>
+                            Análisis Detallado del Resultado
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <h6 class="text-primary">
+                                <i class="fas fa-quote-left me-1"></i>Texto Analizado:
+                            </h6>
+                            <p class="bg-light p-3 rounded">"${comment}"</p>
+                        </div>
+                        <div>
+                            <h6 class="text-success">
+                                <i class="fas fa-lightbulb me-1"></i>Análisis Profesional:
+                            </h6>
+                            <div class="bg-light p-3 rounded explanation-content">${explanation.replace(/\n/g, '<br>')}</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" onclick="copyExplanation('${explanation.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-copy me-1"></i>Copiar Análisis
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Remove existing modal if any
+    const existingModal = document.getElementById('explanationModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('explanationModal'));
+    modal.show();
+}
+
+function copyExplanation(explanation) {
+    navigator.clipboard.writeText(explanation).then(() => {
+        // Show success feedback
+        const toastHtml = `
+            <div class="toast align-items-center text-white bg-success border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-check me-2"></i>Análisis copiado al portapapeles
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.innerHTML = toastHtml;
+        document.body.appendChild(toastContainer);
+
+        const toast = new bootstrap.Toast(toastContainer.querySelector('.toast'));
+        toast.show();
+
+        setTimeout(() => toastContainer.remove(), 3000);
     });
 }
 </script>

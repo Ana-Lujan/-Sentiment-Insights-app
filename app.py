@@ -190,9 +190,13 @@ def create_emotion_chart(df: pd.DataFrame):
 def create_sentiment_heatmap(df: pd.DataFrame):
     """Crea un mapa de calor de sentimientos por tiempo."""
     logger.info(f"Creating heatmap with {len(df)} rows")
-    if df.empty or len(df) < 2:  # Need at least 2 data points for meaningful heatmap
-        logger.warning("DataFrame is empty or too small for heatmap")
+    if df.empty:
+        logger.warning("DataFrame is empty for heatmap")
         return None
+
+    # Allow heatmap with at least 1 data point, but show limited view
+    if len(df) < 2:
+        logger.info("Creating basic heatmap with limited data")
 
     try:
         df_copy = df.copy()
@@ -320,7 +324,7 @@ def generate_pdf_report(df: pd.DataFrame) -> str:
 @app.get("/")
 async def landing(request: Request):
     """Página de presentación profesional."""
-    return templates.TemplateResponse("landing.html", {"request": request})
+    return templates.TemplateResponse("landing.html", {"request": request, "db_initialized": db_initialized})
 
 @app.get("/demo")
 async def home(request: Request):
@@ -429,7 +433,8 @@ async def dashboard(
                 "sentiment_chart": None,
                 "emotion_chart": None,
                 "heatmap_chart": None,
-                "current_time": datetime.now()
+                "current_time": datetime.now(),
+                "db_initialized": db_initialized
             })
 
         # Create DataFrame from all analyses (now all dictionaries)
@@ -478,7 +483,8 @@ async def dashboard(
             "sentiment_chart": sentiment_chart,
             "emotion_chart": emotion_chart,
             "heatmap_chart": heatmap_chart,
-            "current_time": datetime.now()
+            "current_time": datetime.now(),
+            "db_initialized": db_initialized
         })
 
     except Exception as e:
@@ -490,7 +496,8 @@ async def dashboard(
             "recent_analyses_count": 0,
             "sentiment_chart": None,
             "emotion_chart": None,
-            "heatmap_chart": None
+            "heatmap_chart": None,
+            "db_initialized": db_initialized
         })
 
 @app.post("/analyze")
@@ -608,14 +615,15 @@ async def analyze(
 
                 # Sanitize line before analysis
                 line = line.encode('utf-8', errors='replace').decode('utf-8')
-                comentario, sentimiento, emocion, intensidad, confianza = analyze_text(line)
+                comentario, sentimiento, emocion, intensidad, confianza, explicacion = analyze_text(line)
                 success = insert_analysis(comentario, sentimiento, emocion, intensidad, confianza)
                 results.append({
                     'comentario': comentario,
                     'sentimiento': sentimiento,
                     'emocion': emocion,
                     'intensidad': intensidad,
-                    'confianza': confianza
+                    'confianza': confianza,
+                    'explicacion': explicacion
                 })
             except Exception as e:
                 # Log sanitized error and continue
@@ -717,13 +725,14 @@ async def api_analyze(
         raise HTTPException(status_code=401, detail="API key inválida")
 
     try:
-        comentario, sentimiento, emocion, intensidad, confianza = analyze_text(text.strip())
+        comentario, sentimiento, emocion, intensidad, confianza, explicacion = analyze_text(text.strip())
         return {
             "text": comentario,
             "sentiment": sentimiento,
             "emotion": emocion,
             "intensity": intensidad,
-            "confidence": confianza
+            "confidence": confianza,
+            "explanation": explicacion
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error en análisis: {str(e)}")
@@ -821,7 +830,7 @@ async def websocket_analyze(websocket: WebSocket):
             text_input = data.get('text', '')
             if text_input.strip():
                 await websocket.send_json({"status": "Procesando..."})
-                comentario, sentimiento, emocion, intensidad, confianza = analyze_text(text_input.strip())
+                comentario, sentimiento, emocion, intensidad, confianza, explicacion = analyze_text(text_input.strip())
                 success = insert_analysis(comentario, sentimiento, emocion, intensidad, confianza)
                 result = {
                     "comentario": comentario,
@@ -829,6 +838,7 @@ async def websocket_analyze(websocket: WebSocket):
                     "emocion": emocion,
                     "intensidad": intensidad,
                     "confianza": confianza,
+                    "explicacion": explicacion,
                     "success": success
                 }
                 await websocket.send_json({"result": result})

@@ -1,17 +1,6 @@
----
-title: Sentiment Insights
-emoji: 🎯
-colorFrom: blue
-colorTo: green
-sdk: gradio
-sdk_version: 3.50.0
-app_file: gradio_app.py
-pinned: false
----
-
 # Sentiment Insights - Análisis de Sentimientos Inteligente
 
-¡Descubre el poder de la Inteligencia Artificial para entender las emociones detrás de las palabras!
+¡Descubre el poder del análisis de sentimientos para entender las emociones detrás de las palabras!
 
 Esta aplicación web analiza sentimientos y emociones en textos, archivos e incluso sitios web, proporcionando insights valiosos para empresas, investigadores y cualquier persona interesada en comprender mejor las opiniones y emociones humanas.
 
@@ -30,7 +19,9 @@ Esta aplicación web analiza sentimientos y emociones en textos, archivos e incl
 - **Comprende emociones**: Detecta si un texto es positivo, negativo o neutral
 - **Identifica sentimientos específicos**: Alegría, tristeza, enojo, sorpresa, etc.
 - **Mide intensidad**: Cuán fuerte es la emoción expresada
-- **Análisis en español**: Especialmente diseñado para el idioma español
+- **Análisis en español**: Optimizado para el idioma español con diccionario comprehensivo
+- **Método híbrido**: Combina análisis de palabras clave avanzado con IA (cuando disponible)
+- **Precisión mejorada**: Considera intensificadores y negaciones en el contexto
 
 ### 📁 Soporte para Múltiples Formatos
 - **Texto escrito**: Copia y pega directamente
@@ -55,9 +46,9 @@ Esta aplicación web analiza sentimientos y emociones en textos, archivos e incl
 ## 🚀 ¿Cómo usar la aplicación?
 
 ### 📋 Lo que Necesitas
-- **Python 3.11** o superior instalado
-- **Conexión a internet** para descargar modelos de IA
-- **Base de datos** (opcional - funciona sin ella)
+- **Python 3.8** o superior instalado
+- **Conexión a internet** (opcional - funciona sin conexión)
+- **Base de datos PostgreSQL** (opcional - funciona en modo demo)
 
 ### 🚀 Instalación Rápida
 1. **Descarga** el proyecto
