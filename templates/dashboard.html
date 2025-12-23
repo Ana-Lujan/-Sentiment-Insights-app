@@ -1,0 +1,543 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Ejecutivo - Sentiment Insights{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="/demo" class="text-decoration-none">
+        <i class="fas fa-search me-1"></i>Análisis
+    </a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">
+    <i class="fas fa-chart-bar me-1"></i>Dashboard
+</li>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="dashboard-header-section">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="dashboard-main-title">
+                    <i class="fas fa-chart-line text-primary me-3"></i>
+                    Dashboard de Análisis de Sentimientos
+                </h1>
+                <p class="dashboard-subtitle text-muted">
+                    Inteligencia de mercado en tiempo real • Análisis profesional de emociones
+                </p>
+            </div>
+            <div class="col-lg-4 text-end">
+                <div class="dashboard-actions">
+                    <a href="/demo" class="btn btn-outline-primary btn-sm me-2">
+                        <i class="fas fa-plus-circle me-1"></i>Nuevo Análisis
+                    </a>
+                    <div class="dashboard-meta d-inline">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            Última actualización: {{ current_time.strftime("%H:%M:%S") }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid dashboard-content">
+    {% if total_analyses and total_analyses > 0 %}
+
+    <!-- Advanced Filters Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="filter-card">
+                <div class="filter-header">
+                    <h4 class="filter-title">
+                        <i class="fas fa-filter me-2"></i>
+                        Filtros Avanzados
+                    </h4>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                        <i class="fas fa-undo me-1"></i>Limpiar Filtros
+                    </button>
+                </div>
+                <div class="filter-controls">
+                    <div class="row g-3">
+                        <!-- Date Range Filters -->
+                        <div class="col-md-6 col-lg-3">
+                            <label for="startDate" class="form-label">Fecha Desde</label>
+                            <input type="date" class="form-control" id="startDate" name="start_date">
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <label for="endDate" class="form-label">Fecha Hasta</label>
+                            <input type="date" class="form-control" id="endDate" name="end_date">
+                        </div>
+
+                        <!-- Sentiment Filter -->
+                        <div class="col-md-6 col-lg-3">
+                            <label for="sentimentFilter" class="form-label">Sentimiento</label>
+                            <select class="form-select" id="sentimentFilter" name="sentiment_filter">
+                                <option value="all">Todos los sentimientos</option>
+                                <option value="POSITIVO">Positivo</option>
+                                <option value="NEGATIVO">Negativo</option>
+                                <option value="NEUTRAL">Neutral</option>
+                            </select>
+                        </div>
+
+                        <!-- Emotion Filter -->
+                        <div class="col-md-6 col-lg-3">
+                            <label for="emotionFilter" class="form-label">Emoción</label>
+                            <select class="form-select" id="emotionFilter" name="emotion_filter">
+                                <option value="all">Todas las emociones</option>
+                                <option value="Alegría">Alegría</option>
+                                <option value="Alegría Extrema">Alegría Extrema</option>
+                                <option value="Sorpresa">Sorpresa</option>
+                                <option value="Indiferencia">Indiferencia</option>
+                                <option value="Enojo/Frustración">Enojo/Frustración</option>
+                                <option value="Ira Extrema">Ira Extrema</option>
+                                <option value="VACÍO">Vacío</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Apply Filters Button -->
+                    <div class="filter-actions mt-3">
+                        <button class="btn btn-primary" onclick="applyFilters()">
+                            <i class="fas fa-search me-2"></i>Aplicar Filtros
+                        </button>
+                        <div class="filter-results ms-3">
+                            <small class="text-muted">
+                                <i class="fas fa-chart-bar me-1"></i>
+                                <span id="filteredCount">{{ total_analyses }}</span> análisis filtrados
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive KPIs Row -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="kpi-card kpi-primary">
+                <div class="kpi-icon-wrapper">
+                    <div class="kpi-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value">{{ "{:,}".format(total_analyses|default(0)) }}</div>
+                    <div class="kpi-label">Total Análisis</div>
+                    <div class="kpi-trend">
+                        <i class="fas fa-arrow-up text-success"></i>
+                        <span class="text-success">+{{ recent_analyses_count|default(0) }} hoy</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="kpi-card kpi-success">
+                <div class="kpi-icon-wrapper">
+                    <div class="kpi-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value">{{ "%.1f"|format(average_confidence|default(0) * 100) }}%</div>
+                    <div class="kpi-label">Precisión del Modelo</div>
+                    <div class="kpi-trend">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span class="text-success">Alta confianza</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="kpi-card kpi-warning">
+                <div class="kpi-icon-wrapper">
+                    <div class="kpi-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value">{{ unique_emotions|default(0) }}</div>
+                    <div class="kpi-label">Emociones Detectadas</div>
+                    <div class="kpi-trend">
+                        <i class="fas fa-chart-bar text-warning"></i>
+                        <span class="text-warning">Categorías únicas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="kpi-card kpi-info">
+                <div class="kpi-icon-wrapper">
+                    <div class="kpi-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value">{{ "%.2f"|format(negative_intensity_avg|default(0)) }}</div>
+                    <div class="kpi-label">Índice Negativo</div>
+                    <div class="kpi-trend">
+                        <i class="fas fa-arrow-down text-info"></i>
+                        <span class="text-info">Escala 0-1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Status Alert -->
+    {% if recent_analyses_count and recent_analyses_count > 0 %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-success alert-dismissible fade show modern-alert" role="alert">
+                <div class="d-flex align-items-center">
+                    <div class="alert-icon">
+                        <i class="fas fa-sync-alt fa-spin"></i>
+                    </div>
+                    <div class="alert-content">
+                        <strong>Dashboard Actualizado</strong>
+                        <div class="alert-details">
+                            {{ recent_analyses_count }} análisis nuevos procesados • Datos en tiempo real
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AI Insights Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="insight-card">
+                <div class="insight-header">
+                    <h4 class="insight-title">
+                        <i class="fas fa-brain text-primary me-2"></i>
+                        Insights de IA
+                    </h4>
+                    <div class="insight-badges">
+                        <span class="badge bg-primary">Análisis Automático</span>
+                        <span class="badge bg-success">Recomendaciones</span>
+                    </div>
+                </div>
+                <div class="insight-content">
+                    <div class="insights-grid">
+                        <div class="insight-item" id="sentiment-trend">
+                            <div class="insight-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="insight-text">
+                                <h6>Tendencia General</h6>
+                                <p id="sentiment-trend-text">Analizando patrones de sentimiento...</p>
+                            </div>
+                        </div>
+
+                        <div class="insight-item" id="emotion-insight">
+                            <div class="insight-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="insight-text">
+                                <h6>Emoción Predominante</h6>
+                                <p id="emotion-insight-text">Evaluando emociones detectadas...</p>
+                            </div>
+                        </div>
+
+                        <div class="insight-item" id="confidence-insight">
+                            <div class="insight-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="insight-text">
+                                <h6>Precisión del Modelo</h6>
+                                <p id="confidence-insight-text">Midiendo confianza del análisis...</p>
+                            </div>
+                        </div>
+
+                        <div class="insight-item" id="recommendation">
+                            <div class="insight-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="insight-text">
+                                <h6>Recomendación</h6>
+                                <p id="recommendation-text">Generando sugerencias basadas en datos...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-4">
+        <!-- Sentiment Distribution -->
+        <div class="col-xl-6 mb-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h4 class="chart-title">
+                            <i class="fas fa-chart-pie text-primary me-2"></i>
+                            Distribución de Sentimientos
+                        </h4>
+                        <div class="chart-subtitle">Análisis de polaridad emocional</div>
+                    </div>
+                    <div class="chart-actions">
+                        <button class="btn btn-sm btn-outline-primary" onclick="refreshChart('sentimentChart')">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div id="sentimentChart" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emotion Frequency -->
+        <div class="col-xl-6 mb-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h4 class="chart-title">
+                            <i class="fas fa-chart-bar text-success me-2"></i>
+                            Frecuencia de Emociones
+                        </h4>
+                        <div class="chart-subtitle">Espectro emocional detectado</div>
+                    </div>
+                    <div class="chart-actions">
+                        <button class="btn btn-sm btn-outline-success" onclick="refreshChart('emotionChart')">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div id="emotionChart" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Heatmap Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h4 class="chart-title">
+                            <i class="fas fa-calendar-alt text-info me-2"></i>
+                            Mapa de Calor Temporal
+                        </h4>
+                        <div class="chart-subtitle">Evolución de sentimientos por hora</div>
+                    </div>
+                    <div class="chart-actions">
+                        <button class="btn btn-sm btn-outline-info" onclick="refreshChart('heatmapChart')">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div id="heatmapChart" class="chart-container heatmap-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+
+    <!-- Empty State - Professional -->
+    <div class="row">
+        <div class="col-12">
+            <div class="empty-state-card">
+                <div class="empty-state-content">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h2 class="empty-state-title">Dashboard Sin Datos</h2>
+                    <p class="empty-state-description">
+                        No hay análisis históricos disponibles para generar métricas y visualizaciones.
+                        Comienza realizando análisis de sentimientos para construir tu inteligencia de mercado.
+                    </p>
+                    <div class="empty-state-actions">
+                        <a href="/demo" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus-circle me-2"></i>
+                            Realizar Primer Análisis
+                        </a>
+                        <a href="/demo" class="btn btn-outline-primary btn-lg ms-3">
+                            <i class="fas fa-upload me-2"></i>
+                            Cargar Datos
+                        </a>
+                    </div>
+                    <div class="empty-state-tips">
+                        <small class="text-muted">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            Tip: Analiza reseñas, comentarios o textos para comenzar a construir insights
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+</div>
+
+<!-- Chart Refresh Functions -->
+<script>
+function refreshChart(chartId) {
+    // Add loading state
+    const chartElement = document.getElementById(chartId);
+    if (chartElement) {
+        chartElement.style.opacity = '0.5';
+        setTimeout(() => {
+            chartElement.style.opacity = '1';
+            // Trigger chart refresh (will be handled by existing refresh logic)
+            window.location.reload();
+        }, 500);
+    }
+}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/charts.js') }}"></script>
+
+<script>
+// Initialize charts with available data
+let sentimentChart, emotionChart, heatmapChart;
+
+// Function to render charts
+function renderCharts() {
+    console.log('Rendering charts...');
+    console.log('Sentiment data:', window.sentiment_chart_data);
+    console.log('Emotion data:', window.emotion_chart_data);
+    console.log('Heatmap data:', window.heatmap_chart_data);
+
+    // Sentiment Chart
+    if (window.sentiment_chart_data && window.sentiment_chart_data.data && window.sentiment_chart_data.data.length > 0) {
+        try {
+            console.log('Rendering sentiment chart');
+            Plotly.newPlot('sentimentChart', window.sentiment_chart_data.data, window.sentiment_chart_data.layout || {});
+        } catch (e) {
+            console.error('Error rendering sentiment chart:', e);
+            document.getElementById('sentimentChart').innerHTML = '<div class="alert alert-warning">Error al cargar gráfico de sentimientos</div>';
+        }
+    } else {
+        console.log('No sentiment chart data available');
+        document.getElementById('sentimentChart').innerHTML = '<div class="alert alert-info">Datos insuficientes para generar gráfico de sentimientos</div>';
+    }
+
+    // Emotion Chart
+    if (window.emotion_chart_data && window.emotion_chart_data.data && window.emotion_chart_data.data.length > 0) {
+        try {
+            console.log('Rendering emotion chart');
+            Plotly.newPlot('emotionChart', window.emotion_chart_data.data, window.emotion_chart_data.layout || {});
+        } catch (e) {
+            console.error('Error rendering emotion chart:', e);
+            document.getElementById('emotionChart').innerHTML = '<div class="alert alert-warning">Error al cargar gráfico de emociones</div>';
+        }
+    } else {
+        console.log('No emotion chart data available');
+        document.getElementById('emotionChart').innerHTML = '<div class="alert alert-info">Datos insuficientes para generar gráfico de emociones</div>';
+    }
+
+    // Heatmap Chart
+    if (window.heatmap_chart_data && window.heatmap_chart_data.data && window.heatmap_chart_data.data.length > 0) {
+        try {
+            console.log('Rendering heatmap chart');
+            Plotly.newPlot('heatmapChart', window.heatmap_chart_data.data, window.heatmap_chart_data.layout || {});
+        } catch (e) {
+            console.error('Error rendering heatmap chart:', e);
+            document.getElementById('heatmapChart').innerHTML = '<div class="alert alert-warning">Error al cargar mapa de calor</div>';
+        }
+    } else {
+        console.log('No heatmap chart data available');
+        document.getElementById('heatmapChart').innerHTML = '<div class="alert alert-info">Datos insuficientes para mapa de calor</div>';
+    }
+}
+
+// Function to refresh dashboard data
+async function refreshDashboard() {
+    try {
+        const response = await fetch('/api/charts/sentiment');
+        if (response.ok) {
+            const sentimentData = await response.json();
+            if (sentimentData.data && sentimentData.data.length > 0) {
+                window.sentiment_chart_data = sentimentData;
+                Plotly.newPlot('sentimentChart', sentimentData.data, sentimentData.layout);
+            }
+        }
+
+        const emotionResponse = await fetch('/api/charts/emotion');
+        if (emotionResponse.ok) {
+            const emotionData = await emotionResponse.json();
+            if (emotionData.data && emotionData.data.length > 0) {
+                window.emotion_chart_data = emotionData;
+                Plotly.newPlot('emotionChart', emotionData.data, emotionData.layout);
+            }
+        }
+
+        const heatmapResponse = await fetch('/api/charts/heatmap');
+        if (heatmapResponse.ok) {
+            const heatmapData = await heatmapResponse.json();
+            if (heatmapData.data && heatmapData.data.length > 0) {
+                window.heatmap_chart_data = heatmapData;
+                Plotly.newPlot('heatmapChart', heatmapData.data, heatmapData.layout);
+            }
+        }
+
+        // Update KPIs
+        updateKPIs();
+
+    } catch (error) {
+        console.error('Error refreshing dashboard:', error);
+    }
+}
+
+// Function to update KPIs
+async function updateKPIs() {
+    try {
+        const response = await fetch('/api/stats');
+        if (response.ok) {
+            const stats = await response.json();
+            // Update KPI displays if needed
+            console.log('Updated stats:', stats);
+        }
+    } catch (error) {
+        console.error('Error updating KPIs:', error);
+    }
+}
+
+// Initialize charts on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial data from server
+    {% if sentiment_chart %}
+    window.sentiment_chart_data = {{ sentiment_chart | tojson }};
+    {% endif %}
+
+    {% if emotion_chart %}
+    window.emotion_chart_data = {{ emotion_chart | tojson }};
+    {% endif %}
+
+    {% if heatmap_chart %}
+    window.heatmap_chart_data = {{ heatmap_chart | tojson }};
+    {% endif %}
+
+    // Render charts
+    renderCharts();
+
+    // Auto-refresh every 30 seconds
+    setInterval(refreshDashboard, 30000);
+});
+
+// Listen for analysis completion events (can be triggered from analysis page)
+window.addEventListener('analysisComplete', function() {
+    setTimeout(refreshDashboard, 1000); // Refresh after 1 second
+});
+</script>
+{% endblock %}

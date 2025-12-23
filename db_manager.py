@@ -1,19 +1,40 @@
 import psycopg2
 import pandas as pd
+import os
+
+# Global flag for DB availability
+DB_AVAILABLE = False
 
 # Database connection parameters
-# Replace with your actual PostgreSQL credentials
-DB_HOST = "localhost"
-DB_NAME = "sentiment_db"
-DB_USER = "your_postgres_user"
-DB_PASS = "your_postgres_password"
+# Load from environment variables with defaults for robustness
+DB_HOST = os.environ.get("PG_HOST", "localhost")
+DB_NAME = os.environ.get("PG_DB_NAME", "sentiment_db")
+DB_USER = os.environ.get("PG_USER", "postgres")
+DB_PASS = os.environ.get("PG_PASS", "")
 
 def get_db_connection():
-    """Get a database connection."""
-    return psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+    """Establece y retorna la conexión a PostgreSQL con codificación UTF-8."""
+    try:
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS,
+            connect_timeout=5,
+            client_encoding='utf8'  # Force UTF-8 encoding
+        )
+        return conn
+    except psycopg2.OperationalError as e:
+        raise ConnectionError(f"Error de conexión a la DB. Verifique PG_HOST, PG_DB_NAME y credenciales. Detalle: {e}")
 
 def initialize_db():
-    """Connect to the database and create the insights table if it doesn't exist."""
+    """
+    Conecta a la base de datos y crea la tabla insights si no existe.
+
+    Returns:
+        bool: True si la inicialización fue exitosa, False en caso contrario.
+    """
+    global DB_AVAILABLE
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -22,8 +43,9 @@ def initialize_db():
                 id SERIAL PRIMARY KEY,
                 comentario TEXT,
                 sentimiento VARCHAR(20),
-                emocion VARCHAR(20),
-                probabilidad REAL,
+                emocion VARCHAR(30),
+                intensidad REAL,
+                confianza REAL,
                 fecha_analisis TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -31,35 +53,87 @@ def initialize_db():
         cursor.close()
         conn.close()
         print("Database initialized successfully.")
+        DB_AVAILABLE = True
+        return True
+    except ConnectionError as e:
+        print(f"Connection error initializing database: {e}")
+        DB_AVAILABLE = False
+        return False
     except Exception as e:
         print(f"Error initializing database: {e}")
+        DB_AVAILABLE = False
+        return False
 
-def insert_analysis(comentario, sentimiento, emocion, probabilidad):
-    """Insert a new analysis result into the database."""
+def insert_analysis(comentario, sentimiento, emocion, intensidad, confianza):
+    """
+    Inserta un nuevo resultado de análisis en la base de datos con codificación UTF-8.
+
+    Args:
+        comentario (str): El texto del comentario.
+        sentimiento (str): El sentimiento analizado.
+        emocion (str): La emoción correspondiente.
+        intensidad (float): La intensidad del sentimiento.
+        confianza (float): La confianza del modelo.
+
+    Returns:
+        bool: True si la inserción fue exitosa, False en caso contrario.
+    """
+    if not DB_AVAILABLE:
+        print("DB not available, skipping insert.")
+        return True  # Skip for demo
     try:
+        # Sanitize text: remove null bytes and ensure UTF-8 compatibility
+        def sanitize_text(text):
+            if not text:
+                return ""
+            # Remove null bytes and other problematic characters
+            text = text.replace('\x00', '').replace('\ufeff', '')
+            # Ensure UTF-8 compatibility
+            return text.encode('utf-8', errors='replace').decode('utf-8')
+
+        comentario = sanitize_text(comentario)
+        sentimiento = sanitize_text(sentimiento)
+        emocion = sanitize_text(emocion)
+
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO insights (comentario, sentimiento, emocion, probabilidad)
-            VALUES (%s, %s, %s, %s)
-        ''', (comentario, sentimiento, emocion, probabilidad))
+            INSERT INTO insights (comentario, sentimiento, emocion, intensidad, confianza)
+            VALUES (%s, %s, %s, %s, %s)
+        ''', (comentario, sentimiento, emocion, intensidad, confianza))
         conn.commit()
         cursor.close()
         conn.close()
         print("Analysis inserted successfully.")
+        return True
+    except ConnectionError as e:
+        print(f"Connection error inserting analysis: {e}")
+        return False
     except Exception as e:
         print(f"Error inserting analysis: {e}")
+        return False
 
 def fetch_all_results():
-    """Fetch all analysis results from the database."""
+    """
+    Obtiene todos los resultados de análisis de la base de datos.
+
+    Returns:
+        list: Lista de tuplas con los resultados, o lista vacía si hay error.
+    """
+    if not DB_AVAILABLE:
+        print("DB not available, returning empty results.")
+        return []
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT comentario, sentimiento, emocion, probabilidad, fecha_analisis FROM insights')
+        cursor.execute('SELECT comentario, sentimiento, emocion, intensidad, confianza, fecha_analisis FROM insights')
         results = cursor.fetchall()
         cursor.close()
         conn.close()
         return results
+    except ConnectionError as e:
+        print(f"Connection error fetching results: {e}")
+        return []
     except Exception as e:
         print(f"Error fetching results: {e}")
         return []

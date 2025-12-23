@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "templates/*.html": "jinja-html",
+        "*.html": "jinja-html"
+    },
+    "emmet.includeLanguages": {
+        "jinja-html": "html"
+    },
+    "html.validate.scripts": false,
+    "html.validate.styles": false,
+    "jinja-html.validate": false,
+    "[jinja-html]": {
+        "editor.defaultFormatter": "ms-python.python"
+    }
+}

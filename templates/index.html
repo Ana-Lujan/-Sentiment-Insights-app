@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis Interactivo - Sentiment Insights{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">
+    <i class="fas fa-search me-1"></i>Análisis Interactivo
+</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="card-title mb-0"><i class="fas fa-search"></i> Análisis de Sentimiento Profesional</h2>
+            </div>
+            <div class="card-body">
+                <form id="analysisForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="textInput" class="form-label">Ingresa comentarios (uno por línea)</label>
+                        <textarea class="form-control" id="textInput" name="text_input" rows="5" placeholder="Escribe tus comentarios aquí..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fileInput" class="form-label">O sube un archivo (PDF, imagen, audio, video, texto)</label>
+                        <div class="input-group">
+                            <input class="form-control" type="file" id="fileInput" name="file_input" accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.jpg,.jpeg,.png,.bmp,.tiff,.mp3,.wav,.flac,.m4a,.mp4,.avi,.mov,.mkv" style="display: none;">
+                            <input type="text" class="form-control" id="fileDisplay" placeholder="Selecciona un archivo..." readonly>
+                            <button class="btn btn-outline-secondary" type="button" id="fileSelectBtn">
+                                <i class="fas fa-folder-open"></i> Seleccionar
+                            </button>
+                            <button class="btn btn-outline-danger" type="button" id="fileClearBtn" style="display: none;">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                        <div class="form-text">Formatos empresariales: PDF, Word (.docx), Excel (.xlsx), PowerPoint (.pptx), CSV, TXT, imágenes (OCR), audio/video (transcripción IA)</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="urlInput" class="form-label">O ingresa una URL para extraer texto</label>
+                        <input type="url" class="form-control" id="urlInput" name="url_input" placeholder="https://ejemplo.com">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg" id="analyzeBtn">
+                        <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        <i class="fas fa-play"></i> Analizar y Generar Reporte
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Progress Bar for Analysis -->
+        <div class="card mt-4 shadow" id="progressCard" style="display: none;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tasks me-2"></i>
+                        <span id="progressTitle">Progreso del Análisis</span>
+                    </h5>
+                    <span class="badge bg-primary" id="progressBadge">0%</span>
+                </div>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                         role="progressbar"
+                         style="width: 0%"
+                         id="progressBar">
+                    </div>
+                </div>
+                <div class="mt-2 text-muted small" id="progressStatus">Preparando análisis...</div>
+            </div>
+        </div>
+
+        <!-- Centralized Alert System -->
+        <div class="alert-system">
+            <!-- Database status check removed - application is fully operational -->
+            <div class="alert alert-info" id="statusAlert" style="display: none;">
+                <i class="fas fa-info-circle me-2"></i>
+                <span id="statusMessage"></span>
+            </div>
+        </div>
+
+        {% if results %}
+        <div class="card mt-4 shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0"><i class="fas fa-table"></i> Resultados del Análisis</h3>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearResults()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                    <a href="/dashboard" class="btn btn-primary btn-sm">
+                        <i class="fas fa-chart-bar"></i> Ver Dashboard
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Comentario</th>
+                                <th>Sentimiento</th>
+                                <th>Emoción</th>
+                                <th>Intensidad</th>
+                                <th>Confianza</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td>{{ result.comentario }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if result.sentimiento == 'POSITIVO' else 'danger' if result.sentimiento == 'NEGATIVO' else 'secondary' }}">
+                                        {{ result.sentimiento }}
+                                    </span>
+                                </td>
+                                <td>{{ result.emocion }}</td>
+                                <td>{{ "%.2f"|format(result.intensidad) }}</td>
+                                <td>{{ "%.2f"|format(result.confianza) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if pdf_file %}
+                <div class="mt-3">
+                    <a href="{{ url_for('download_pdf', filename=pdf_file) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-download"></i> Descargar Reporte PDF
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+// File management functionality
+const fileInput = document.getElementById('fileInput');
+const fileDisplay = document.getElementById('fileDisplay');
+const fileSelectBtn = document.getElementById('fileSelectBtn');
+const fileClearBtn = document.getElementById('fileClearBtn');
+
+fileSelectBtn.addEventListener('click', function() {
+    fileInput.click();
+});
+
+fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        fileDisplay.value = file.name;
+        fileClearBtn.style.display = 'block';
+    } else {
+        fileDisplay.value = '';
+        fileClearBtn.style.display = 'none';
+    }
+});
+
+fileClearBtn.addEventListener('click', function() {
+    fileInput.value = '';
+    fileDisplay.value = '';
+    fileClearBtn.style.display = 'none';
+});
+
+document.getElementById('analysisForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const statusAlert = document.getElementById('statusAlert');
+    const statusMessage = document.getElementById('statusMessage');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const spinner = analyzeBtn.querySelector('.spinner-border');
+    const icon = analyzeBtn.querySelector('.fa-play');
+
+    // Hide any existing alerts first
+    statusAlert.style.display = 'none';
+
+    // Show loading state
+    analyzeBtn.disabled = true;
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Extrayendo datos...';
+
+    try {
+        // Step 1: Data extraction
+        analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Extrayendo datos...';
+
+        const response = await fetch('/analyze', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Error en el análisis');
+        }
+
+        // Step 2: Analysis
+        analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Analizando sentimiento...';
+
+        const result = await response.json();
+
+        // Step 3: Report generation
+        analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Generando reporte...';
+
+        if (response.ok) {
+            statusAlert.className = 'alert alert-success';
+            statusAlert.style.display = 'block';
+            statusMessage.textContent = result.status;
+
+            // Dispatch event for dashboard refresh
+            window.dispatchEvent(new CustomEvent('analysisComplete'));
+
+            // Success - reload to show results
+            setTimeout(() => window.location.reload(), 2000);
+        }
+    } catch (error) {
+        statusAlert.className = 'alert alert-danger';
+        statusAlert.style.display = 'block';
+        statusMessage.textContent = error.message || 'Error en el análisis';
+
+        // Reset button
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = '<i class="fas fa-play"></i> Analizar y Generar Reporte';
+    }
+});
+
+function clearResults() {
+    // Call server to clear results
+    fetch('/clear_results', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Success - reload page to clear all results
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error clearing results:', error);
+        // Even on error, reload to ensure clean state
+        window.location.reload();
+    });
+}
+</script>
+{% endblock %}
