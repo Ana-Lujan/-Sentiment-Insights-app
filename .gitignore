@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+# Archivos de VS Code
+.vscode/
+# Archivos generados por Gradio
+gradio_temp/
+# Ignorar un archivo de configuración de credenciales (si existiera)
+# Ejemplo: .env o config.ini
