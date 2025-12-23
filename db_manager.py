@@ -1,16 +1,28 @@
 import psycopg2
 import pandas as pd
 import os
+from urllib.parse import urlparse
 
 # Global flag for DB availability
 DB_AVAILABLE = False
 
 # Database connection parameters
-# Load from environment variables with defaults for robustness
-DB_HOST = os.environ.get("PG_HOST", "localhost")
-DB_NAME = os.environ.get("PG_DB_NAME", "sentiment_db")
-DB_USER = os.environ.get("PG_USER", "postgres")
-DB_PASS = os.environ.get("PG_PASS", "")
+# Check for DATABASE_URL first (Render, Railway, etc.)
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    # Parse DATABASE_URL for Render/Railway format
+    parsed = urlparse(DATABASE_URL)
+    DB_HOST = parsed.hostname
+    DB_NAME = parsed.path.lstrip('/')
+    DB_USER = parsed.username
+    DB_PASS = parsed.password
+else:
+    # Fallback to individual environment variables
+    DB_HOST = os.environ.get("PG_HOST", "localhost")
+    DB_NAME = os.environ.get("PG_DB_NAME", "sentiment_db")
+    DB_USER = os.environ.get("PG_USER", "postgres")
+    DB_PASS = os.environ.get("PG_PASS", "")
 
 def get_db_connection():
     """Establece y retorna la conexión a PostgreSQL con codificación UTF-8."""
